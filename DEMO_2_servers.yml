@@ -1,0 +1,82 @@
+---
+tosca_definitions_version: tosca_simple_yaml_1_0
+imports:
+  TOSCA_definition_1_0: types/TOSCA_definition_1_0.yml
+description: TOSCA simple profile with 2 servers bound to the 1 network
+topology_template:
+  inputs:
+    network_name:
+      type: string
+      description: Network name
+    network_cidr:
+      type: string
+      description: CIDR for the network
+      default: 10.0.0.0/24
+    network_start_ip:
+      type: string
+      description: Start IP for the allocation pool
+      default: 10.0.0.100
+    network_end_ip:
+      type: string
+      description: End IP for the allocation pool
+      default: 10.0.0.150
+  node_templates:
+    server01:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+          type: tosca.capabilities.Container
+          properties:
+            disk_size: 10 GB
+            num_cpus: 1
+            mem_size: 512 MB
+        os:
+          type: tosca.capabilities.OperatingSystem
+          properties:
+            architecture: x86_64
+            type: Linux
+            distribution: CirrOS
+            version: 0.3.2
+    server02:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+          type: tosca.capabilities.Container
+          properties:
+            disk_size: 10 GB
+            num_cpus: 1
+            mem_size: 512 MB
+        os:
+          type: tosca.capabilities.OperatingSystem
+          properties:
+            architecture: x86_64
+            type: Linux
+            distribution: CirrOS
+            version: 0.3.2
+    network01:
+      type: tosca.nodes.network.Network
+      properties:
+        ip_version: 4
+        cidr:
+          get_input: network_cidr
+        network_name:
+          get_input: network_name
+        start_ip:
+          get_input: network_start_ip
+        end_ip:
+          get_input: network_end_ip
+    port1:
+      type: tosca.nodes.network.Port
+      requirements:
+      - binding:
+          node: server01
+      - link:
+          node: network01
+    port2:
+      type: tosca.nodes.network.Port
+      requirements:
+      - binding:
+          node: server02
+      - link:
+          node: network01
+...
